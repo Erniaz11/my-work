@@ -1,4 +1,20 @@
 from django.db import models
+from django.db.models.signals import post_delete, post_save
+from django.dispatch import receiver
+from django.core.cache import cache
+
+from app.setting.cache_utils import CATEGORY_LIST_CACHE_KEY
+
+
+@receiver(post_save, sender="setting.Category")
+def clear_category_list_cache(sender, **kwargs):
+    cache.delete(CATEGORY_LIST_CACHE_KEY)
+
+
+@receiver(post_delete, sender="setting.Category")
+def clear_category_list_cache_on_delete(sender, **kwargs):
+    cache.delete(CATEGORY_LIST_CACHE_KEY)
+
 
 class Category(models.Model):
     name = models.CharField(
@@ -12,7 +28,7 @@ class Category(models.Model):
 
     def __str__(self):
         return self.name
-    
+
     class Meta:
         verbose_name = "Категория"
         verbose_name = "Категорий"
